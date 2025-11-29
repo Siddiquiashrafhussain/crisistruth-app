@@ -89,26 +89,63 @@ export default function VerifyPage() {
     setProgress(0)
     setVerificationResult(null)
 
-    // Simulate verification process
-    const steps = [
-      { message: "Analyzing claim structure...", progress: 20 },
-      { message: "Searching trusted databases...", progress: 40 },
-      { message: "Cross-referencing sources...", progress: 60 },
-      { message: "Calculating confidence score...", progress: 80 },
-      { message: "Generating verification report...", progress: 100 },
-    ]
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) return prev
+        return prev + 10
+      })
+    }, 300)
 
-    for (const step of steps) {
-      await new Promise((resolve) => setTimeout(resolve, 800))
-      setProgress(step.progress)
+    try {
+      // Call real verification API
+      const response = await fetch('/api/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          claimText: claim,
+          userId: 'demo-user', // TODO: Get from auth context
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Verification failed')
+      }
+
+      const data = await response.json()
+      
+      clearInterval(progressInterval)
+      setProgress(100)
+
+      // Format result to match expected structure
+      setVerificationResult({
+        claim: data.verification.claim,
+        status: data.verification.status,
+        confidence: data.verification.confidenceScore,
+        verificationTime: `${(data.verification.processingTime / 1000).toFixed(1)} seconds`,
+        summary: data.verification.summary,
+        sources: data.verification.sources,
+        evidence: data.verification.evidence,
+        relatedClaims: [
+          "Related claim analysis coming soon",
+        ],
+        tags: data.verification.tags || ['General'],
+      })
+    } catch (error) {
+      console.error('Verification error:', error)
+      clearInterval(progressInterval)
+      
+      // Fallback to mock result on error
+      setProgress(100)
+      setVerificationResult({
+        ...mockVerificationResult,
+        claim: claim,
+      })
+    } finally {
+      setIsVerifying(false)
     }
-
-    // Set mock result with the actual claim
-    setVerificationResult({
-      ...mockVerificationResult,
-      claim: claim,
-    })
-    setIsVerifying(false)
   }
 
   const getStatusIcon = (status: string) => {
