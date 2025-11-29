@@ -18,12 +18,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Load saved language from localStorage
     const savedLanguage = localStorage.getItem("crisistruth-language") as Language
+    console.log("Loading language from localStorage:", savedLanguage);
     if (savedLanguage && translations[savedLanguage]) {
       setLanguage(savedLanguage)
     }
   }, [])
 
   const handleSetLanguage = (lang: Language) => {
+    console.log("Setting language to:", lang);
     setLanguage(lang)
     localStorage.setItem("crisistruth-language", lang)
   }
@@ -34,6 +36,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     t: translations[language],
   }
 
+  console.log("Current language state in provider:", language);
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>
 }
 

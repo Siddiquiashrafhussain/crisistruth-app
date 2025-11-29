@@ -1,4 +1,4 @@
-"use client"
++"use client"
 
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -15,6 +15,8 @@ const languages: { code: Language; name: string; flag: string }[] = [
   { code: "pt", name: "Português", flag: "🇧🇷" },
   { code: "de", name: "Deutsch", flag: "🇩🇪" },
   { code: "ru", name: "Русский", flag: "🇷🇺" },
+  { code: "hi", name: "हिन्दी", flag: "🇮🇳" },
+  { code: "mr", name: "मराठी", flag: "🇮🇳" },
 ]
 
 export function LanguageSelector() {
@@ -36,7 +38,10 @@ export function LanguageSelector() {
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => setLanguage(lang.code)}
+            onClick={() => {
+              console.log("Dropdown item clicked, setting language to:", lang.code);
+              setLanguage(lang.code);
+            }}
             className={`flex items-center gap-2 ${language === lang.code ? "bg-accent" : ""}`}
           >
             <span>{lang.flag}</span>
