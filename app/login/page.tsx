@@ -23,16 +23,13 @@ export default function LoginPage() {
     setIsLoading(true)
     setError("")
 
-    // Mock authentication - in real app, this would call an API
+    // Mock authentication
     setTimeout(() => {
       if (email === "admin@crisistruth.org" && password === "admin123") {
-        // Redirect to admin console
         window.location.href = "/admin"
       } else if (email === "factchecker@crisistruth.org" && password === "checker123") {
-        // Redirect to dashboard
         window.location.href = "/dashboard"
       } else if (email && password) {
-        // Regular user - redirect to dashboard
         window.location.href = "/dashboard"
       } else {
         setError("Invalid email or password")
@@ -42,15 +39,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 pt-12">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
+            <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8 w-auto" />
           </div>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h2>
-          <p className="text-muted-foreground">Sign in to your account to continue fact-checking</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Welcome Back</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">Sign in to your account to continue fact-checking</p>
         </div>
 
         {/* Demo Accounts */}
@@ -58,22 +55,22 @@ export default function LoginPage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm">Demo Accounts</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Admin:</span>
-              <Badge variant="secondary" className="text-xs">
+          <CardContent className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs gap-1 sm:gap-2">
+              <span className="text-muted-foreground font-medium shrink-0">Admin:</span>
+              <Badge variant="secondary" className="text-xs font-mono break-all text-left p-2 sm:p-1">
                 admin@crisistruth.org / admin123
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Fact-Checker:</span>
-              <Badge variant="secondary" className="text-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs gap-1 sm:gap-2">
+              <span className="text-muted-foreground font-medium shrink-0">Fact-Checker:</span>
+              <Badge variant="secondary" className="text-xs font-mono break-all text-left p-2 sm:p-1">
                 factchecker@crisistruth.org / checker123
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">User:</span>
-              <Badge variant="secondary" className="text-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs gap-1 sm:gap-2">
+              <span className="text-muted-foreground font-medium shrink-0">User:</span>
+              <Badge variant="secondary" className="text-xs font-mono break-all text-left p-2 sm:p-1">
                 Any email / Any password
               </Badge>
             </div>
@@ -135,7 +132,7 @@ export default function LoginPage() {
               )}
 
               <div className="flex items-center justify-between">
-                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                <Link href="#" className="text-sm text-primary hover:underline">
                   Forgot password?
                 </Link>
               </div>

@@ -22,8 +22,10 @@ import {
   TrendingUp,
   Copy,
   Share,
+  Menu,
 } from "lucide-react"
 import Image from "next/image"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 // Mock verification results
 const mockVerificationResult = {
@@ -81,6 +83,7 @@ export default function VerifyPage() {
   const [isVerifying, setIsVerifying] = useState(false)
   const [verificationResult, setVerificationResult] = useState<typeof mockVerificationResult | null>(null)
   const [progress, setProgress] = useState(0)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const handleVerification = async () => {
     if (!claim.trim()) return
@@ -184,9 +187,9 @@ export default function VerifyPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-           <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
+           <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8 w-auto" />
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <a href="/" className="text-foreground hover:text-primary transition-colors">
@@ -199,17 +202,49 @@ export default function VerifyPage() {
               Verify
             </a>
           </nav>
-          <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">New Verification</Button>
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex">
+              <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">New Verification</Button>
+            </div>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="outline" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full max-w-sm">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-center justify-between py-4 border-b">
+                     <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8 w-auto" />
+                  </div>
+                  <nav className="flex flex-col gap-6 py-6">
+                    <a href="/" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                      Home
+                    </a>
+                    <a href="/dashboard" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                      Dashboard
+                    </a>
+                    <a href="/verify" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-primary">
+                      Verify
+                    </a>
+                  </nav>
+                  <div className="mt-auto border-t pt-6">
+                    <Button className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground">New Verification</Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-primary mb-2 font-[family-name:var(--font-playfair)]">
+          <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-2 font-[family-name:var(--font-playfair)]">
             AI-Powered Fact Verification
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
             Submit any claim for instant AI analysis and verification against trusted sources
           </p>
         </div>
@@ -217,7 +252,7 @@ export default function VerifyPage() {
         {/* Search Interface */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
               <Search className="h-5 w-5" />
               Verify a Claim
             </CardTitle>
@@ -232,13 +267,13 @@ export default function VerifyPage() {
                 placeholder="Enter the claim you want to verify... (e.g., 'The earthquake in Turkey was caused by HAARP weather manipulation technology.')"
                 value={claim}
                 onChange={(e) => setClaim(e.target.value)}
-                className="min-h-[100px]"
+                className="min-h-[100px] text-base"
               />
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   onClick={handleVerification}
                   disabled={!claim.trim() || isVerifying}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {isVerifying ? (
                     <>
@@ -252,7 +287,7 @@ export default function VerifyPage() {
                     </>
                   )}
                 </Button>
-                <Button variant="outline" onClick={() => setClaim("")}>
+                <Button variant="outline" onClick={() => setClaim("")}  className="w-full sm:w-auto">
                   Clear
                 </Button>
               </div>
@@ -292,10 +327,10 @@ export default function VerifyPage() {
             {/* Results Header */}
             <Card>
               <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <CardTitle className="text-xl">Verification Results</CardTitle>
+                <div className="flex flex-col sm:flex-row items-start justify-between">
+                  <div className="flex-1 mb-4 sm:mb-0">
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                      <CardTitle className="text-xl sm:text-2xl">Verification Results</CardTitle>
                       <Badge className={`${getStatusColor(verificationResult.status)} flex items-center gap-1`}>
                         {getStatusIcon(verificationResult.status)}
                         {verificationResult.status.charAt(0).toUpperCase() + verificationResult.status.slice(1)}
@@ -306,7 +341,7 @@ export default function VerifyPage() {
                     </CardDescription>
                     <p className="text-muted-foreground">{verificationResult.summary}</p>
                   </div>
-                  <div className="text-right ml-6">
+                  <div className="text-left sm:text-right ml-0 sm:ml-6 flex-shrink-0">
                     <div className={`text-3xl font-bold mb-1 ${getConfidenceColor(verificationResult.confidence)}`}>
                       {verificationResult.confidence}%
                     </div>
@@ -318,15 +353,15 @@ export default function VerifyPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex flex-wrap gap-2">
                     {verificationResult.tags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
                         {tag}
                       </Badge>
                     ))}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-4 sm:mt-0">
                     <Button variant="outline" size="sm">
                       <Copy className="h-4 w-4 mr-2" />
                       Copy Results
@@ -342,7 +377,7 @@ export default function VerifyPage() {
 
             {/* Detailed Analysis */}
             <Tabs defaultValue="sources" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
                 <TabsTrigger value="sources">Sources</TabsTrigger>
                 <TabsTrigger value="evidence">Evidence</TabsTrigger>
                 <TabsTrigger value="related">Related Claims</TabsTrigger>
@@ -355,8 +390,8 @@ export default function VerifyPage() {
                   {verificationResult.sources.map((source, index) => (
                     <Card key={index}>
                       <CardContent className="pt-6">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row items-start justify-between mb-3">
+                          <div className="flex-1 mb-3 sm:mb-0">
                             <h4 className="font-semibold text-foreground mb-1">{source.title}</h4>
                             <Badge variant="outline" className="text-xs mb-2">
                               {source.type}
@@ -371,7 +406,7 @@ export default function VerifyPage() {
                               View Source <ExternalLink className="h-3 w-3" />
                             </a>
                           </div>
-                          <div className="text-right ml-4">
+                          <div className="text-left sm:text-right ml-0 sm:ml-4 flex-shrink-0">
                             <div className="text-lg font-bold text-secondary mb-1">{source.credibility}%</div>
                             <div className="text-xs text-muted-foreground">Credibility</div>
                           </div>
@@ -386,7 +421,7 @@ export default function VerifyPage() {
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold text-foreground mb-4">Evidence Summary</h3>
 
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid sm:grid-cols-3 gap-4">
                     <Card>
                       <CardContent className="pt-6 text-center">
                         <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
@@ -426,7 +461,7 @@ export default function VerifyPage() {
                         geological evidence strongly support natural tectonic processes as the cause of earthquakes, not
                         artificial weather manipulation technology.
                       </p>
-                      <div className="flex items-center gap-4 text-sm">
+                      <div className="flex flex-wrap items-center gap-4 text-sm">
                         <div className="flex items-center gap-2">
                           <BookOpen className="h-4 w-4 text-primary" />
                           <span>12 Scientific Papers</span>
@@ -451,9 +486,9 @@ export default function VerifyPage() {
                   {verificationResult.relatedClaims.map((relatedClaim, index) => (
                     <Card key={index}>
                       <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                          <p className="text-foreground">{relatedClaim}</p>
-                          <Button variant="outline" size="sm">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                          <p className="text-foreground text-center sm:text-left flex-1">{relatedClaim}</p>
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
                             Verify This
                           </Button>
                         </div>
@@ -469,7 +504,7 @@ export default function VerifyPage() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
+                      <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
                         <TrendingUp className="h-5 w-5" />
                         Verification Methodology
                       </CardTitle>
@@ -508,7 +543,7 @@ export default function VerifyPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-start gap-3">
-                        <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                        <XCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <p className="font-medium text-foreground mb-2">
                             This claim should be treated as misinformation

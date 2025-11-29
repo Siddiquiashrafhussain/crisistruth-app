@@ -3,21 +3,24 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Zap, Users, Search, AlertTriangle, Shield, Globe, Clock, TrendingUp } from "lucide-react"
+import { CheckCircle, Zap, Users, Search, AlertTriangle, Shield, Globe, Clock, TrendingUp, Menu } from "lucide-react"
 import Image from "next/image"
 import { useLanguage } from "@/lib/language-context"
 import { LanguageSelector } from "@/components/language-selector"
+import { useState } from "react"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export default function HomePage() {
   const { t } = useLanguage()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
+            <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8 w-auto" />
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <a href="#features" className="text-foreground hover:text-primary transition-colors font-medium">
@@ -31,61 +34,101 @@ export default function HomePage() {
             </a>
           </nav>
           <div className="flex items-center gap-3">
-            <LanguageSelector />
-            <a href="/login">
-              <Button variant="outline" className="bg-transparent border-2 hover:bg-primary/5">
-                {t.nav.signIn}
-              </Button>
-            </a>
-            <a href="/verify">
-              <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg">
-                {t.nav.startVerifying}
-              </Button>
-            </a>
+            <div className="hidden md:flex items-center gap-3">
+              <LanguageSelector />
+              <a href="/login">
+                <Button variant="outline" className="bg-transparent border-2 hover:bg-primary/5">
+                  {t.nav.signIn}
+                </Button>
+              </a>
+              <a href="/verify">
+                <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg">
+                  {t.nav.startVerifying}
+                </Button>
+              </a>
+            </div>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="outline" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full max-w-sm">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-center justify-between py-4 border-b">
+                     <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8 w-auto" />
+                  </div>
+                  <nav className="flex flex-col gap-6 py-6">
+                    <a href="#features" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                      {t.nav.features}
+                    </a>
+                    <a href="#how-it-works" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                      {t.nav.howItWorks}
+                    </a>
+                    <a href="#about" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                      {t.nav.about}
+                    </a>
+                  </nav>
+                  <div className="mt-auto border-t pt-6 flex flex-col gap-4">
+                     <LanguageSelector />
+                    <a href="/login">
+                      <Button variant="outline" className="w-full bg-transparent border-2 hover:bg-primary/5">
+                        {t.nav.signIn}
+                      </Button>
+                    </a>
+                    <a href="/verify">
+                      <Button className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg">
+                        {t.nav.startVerifying}
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-24 px-4 relative overflow-hidden">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5"></div>
         <div className="container mx-auto relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-left">
+            <div className="text-center lg:text-left">
               <Badge variant="secondary" className="mb-6 bg-secondary/10 text-secondary border-secondary/20 px-4 py-2">
                 <TrendingUp className="w-4 h-4 mr-2" />
                 {t.home.tagline}
               </Badge>
-              <h1 className="text-5xl md:text-6xl font-bold text-primary mb-6 font-[family-name:var(--font-playfair)] text-balance leading-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary mb-6 font-[family-name:var(--font-playfair)] text-balance leading-tight">
                 {t.home.heroTitle}
               </h1>
-              <p className="text-xl text-muted-foreground mb-8 max-w-2xl text-pretty leading-relaxed">
+              <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto lg:mx-0 text-pretty leading-relaxed">
                 {t.home.heroDescription}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <a href="/signup">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg px-8">
+                  <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg px-8">
                     {t.home.startFactChecking}
                   </Button>
                 </a>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-primary text-primary hover:bg-primary/5 bg-transparent px-8"
+                  className="w-full sm:w-auto border-2 border-primary text-primary hover:bg-primary/5 bg-transparent px-8"
                 >
                   {t.home.viewDemo}
                 </Button>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative mt-12 lg:mt-0">
               <Image
                 src="/professional-fact-checking-dashboard-with-charts-a.png"
                 alt="CrisisTruth Dashboard Preview"
                 width={600}
                 height={500}
-                className="rounded-2xl shadow-2xl border border-border"
+                className="rounded-2xl shadow-2xl border border-border w-full h-auto"
               />
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-lg p-4 border border-border">
+              <div className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-lg p-4 border border-border hidden sm:block">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-sm font-medium text-foreground">Live Verification Active</span>
@@ -97,12 +140,12 @@ export default function HomePage() {
       </section>
 
       {/* Crisis Alert Banner */}
-      <section className="py-8 px-4 bg-gradient-to-r from-secondary/10 to-primary/10 border-y border-border">
+      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-secondary/10 to-primary/10 border-y border-border">
         <div className="container mx-auto">
-          <div className="flex items-center justify-center gap-3 text-center">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
             <AlertTriangle className="h-6 w-6 text-secondary animate-pulse" />
-            <p className="text-lg font-medium text-card-foreground">{t.home.crisisAlert}</p>
-            <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
+            <p className="text-base sm:text-lg font-medium text-card-foreground">{t.home.crisisAlert}</p>
+            <Badge variant="secondary" className="bg-secondary text-secondary-foreground mt-2 sm:mt-0">
               Live 
             </Badge>
           </div>
@@ -110,23 +153,23 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-card">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-card">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div className="space-y-2">
-              <div className="text-4xl font-bold text-primary">2.5M+</div>
+              <div className="text-3xl sm:text-4xl font-bold text-primary">2.5M+</div>
               <div className="text-muted-foreground">Claims Verified</div>
             </div>
             <div className="space-y-2">
-              <div className="text-4xl font-bold text-secondary">98.7%</div>
+              <div className="text-3xl sm:text-4xl font-bold text-secondary">98.7%</div>
               <div className="text-muted-foreground">Accuracy Rate</div>
             </div>
             <div className="space-y-2">
-              <div className="text-4xl font-bold text-primary">150+</div>
+              <div className="text-3xl sm:text-4xl font-bold text-primary">150+</div>
               <div className="text-muted-foreground">Countries Served</div>
             </div>
             <div className="space-y-2">
-              <div className="text-4xl font-bold text-secondary">24/7</div>
+              <div className="text-3xl sm:text-4xl font-bold text-secondary">24/7</div>
               <div className="text-muted-foreground">Real-time Monitoring</div>
             </div>
           </div>
@@ -134,18 +177,18 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4">
+      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-primary mb-4 font-[family-name:var(--font-playfair)]">
+            <h2 className="text-3xl sm:text-4xl font-bold text-primary mb-4 font-[family-name:var(--font-playfair)]">
               {t.home.trustedTechnology}
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               {t.home.trustedTechnologyDesc}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card className="border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-card">
               <CardHeader>
                 <div className="h-16 w-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
@@ -163,7 +206,7 @@ export default function HomePage() {
                     alt="Real-time Analysis"
                     width={300}
                     height={200}
-                    className="rounded-lg border border-border w-full"
+                    className="rounded-lg border border-border w-full h-auto"
                   />
                 </div>
               </CardContent>
@@ -188,13 +231,13 @@ export default function HomePage() {
                     alt="Multi-source Verification"
                     width={300}
                     height={200}
-                    className="rounded-lg border border-border w-full"
+                    className="rounded-lg border border-border w-full h-auto"
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-card">
+            <Card className="border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-card md:col-span-2 lg:col-span-1">
               <CardHeader>
                 <div className="h-16 w-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
                   <Users className="h-8 w-8 text-primary-foreground" />
@@ -211,7 +254,7 @@ export default function HomePage() {
                     alt="Community Verification"
                     width={300}
                     height={200}
-                    className="rounded-lg border border-border w-full"
+                    className="rounded-lg border border-border w-full h-auto"
                   />
                 </div>
               </CardContent>
@@ -221,13 +264,13 @@ export default function HomePage() {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 px-4 bg-card">
+      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-card">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-primary mb-4 font-[family-name:var(--font-playfair)]">
+            <h2 className="text-3xl sm:text-4xl font-bold text-primary mb-4 font-[family-name:var(--font-playfair)]">
               {t.home.howItWorksTitle}
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">{t.home.howItWorksDesc}</p>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">{t.home.howItWorksDesc}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-12">
@@ -245,7 +288,7 @@ export default function HomePage() {
                 alt="Submit Claim"
                 width={250}
                 height={150}
-                className="rounded-lg border border-border mx-auto"
+                className="rounded-lg border border-border mx-auto w-full max-w-xs h-auto"
               />
             </div>
 
@@ -263,7 +306,7 @@ export default function HomePage() {
                 alt="AI Analysis"
                 width={250}
                 height={150}
-                className="rounded-lg border border-border mx-auto"
+                className="rounded-lg border border-border mx-auto w-full max-w-xs h-auto"
               />
             </div>
 
@@ -280,7 +323,7 @@ export default function HomePage() {
                 alt="Get Results"
                 width={250}
                 height={150}
-                className="rounded-lg border border-border mx-auto"
+                className="rounded-lg border border-border mx-auto w-full max-w-xs h-auto"
               />
             </div>
           </div>
@@ -288,13 +331,13 @@ export default function HomePage() {
       </section>
 
       {/* Trust Indicators Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-primary mb-4 font-[family-name:var(--font-playfair)]">
+            <h2 className="text-3xl sm:text-4xl font-bold text-primary mb-4 font-[family-name:var(--font-playfair)]">
               Trusted by Organizations Worldwide
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Leading news organizations, governments, and NGOs rely on CrisisTruth for accurate information.
             </p>
           </div>
@@ -339,34 +382,34 @@ export default function HomePage() {
 
           <div className="text-center">
             <p className="text-muted-foreground mb-8">Trusted by leading organizations</p>
-            <div className="flex justify-center items-center gap-12 opacity-60">
+            <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12 opacity-60">
               <Image
                 src="/generic-news-logo.png"
                 alt="Partner 1"
                 width={120}
                 height={40}
-                className="grayscale hover:grayscale-0 transition-all"
+                className="grayscale hover:grayscale-0 transition-all h-10 w-auto"
               />
               <Image
                 src="/generic-government-logo.png"
                 alt="Partner 2"
                 width={120}
                 height={40}
-                className="grayscale hover:grayscale-0 transition-all"
+                className="grayscale hover:grayscale-0 transition-all h-10 w-auto"
               />
               <Image
                 src="/ngo-organization-logo.png"
                 alt="Partner 3"
                 width={120}
                 height={40}
-                className="grayscale hover:grayscale-0 transition-all"
+                className="grayscale hover:grayscale-0 transition-all h-10 w-auto"
               />
               <Image
                 src="/university-research-logo.png"
                 alt="Partner 4"
                 width={120}
                 height={40}
-                className="grayscale hover:grayscale-0 transition-all"
+                className="grayscale hover:grayscale-0 transition-all h-10 w-auto"
               />
             </div>
           </div>
@@ -374,22 +417,22 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10">
         <div className="container mx-auto text-center">
-          <h2 className="text-4xl font-bold text-primary mb-6 font-[family-name:var(--font-playfair)]">
+          <h2 className="text-3xl sm:text-4xl font-bold text-primary mb-6 font-[family-name:var(--font-playfair)]">
             {t.home.joinFight}
           </h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">{t.home.joinFightDesc}</p>
+          <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">{t.home.joinFightDesc}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="/signup">
-              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg px-8">
+              <Button size="lg" className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg px-8">
                 {t.home.getStartedFree}
               </Button>
             </a>
             <Button
               size="lg"
               variant="outline"
-              className="border-2 border-primary text-primary hover:bg-primary/5 bg-transparent px-8"
+              className="w-full sm:w-auto border-2 border-primary text-primary hover:bg-primary/5 bg-transparent px-8"
             >
               {t.home.learnMore}
             </Button>
@@ -398,12 +441,12 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-muted py-16 px-4">
+      <footer className="border-t border-border bg-muted py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="lg:col-span-1">
               <div className="flex items-center gap-2 mb-6">
-                <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={100} height={24} className="h-6" />
+                <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={100} height={24} className="h-6 w-auto" />
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed mb-6">
                 AI-powered fact verification for a more informed world.
@@ -424,7 +467,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div>
+            <div className="mt-8 md:mt-0">
               <h4 className="font-semibold text-foreground mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
@@ -445,7 +488,7 @@ export default function HomePage() {
               </ul>
             </div>
 
-            <div>
+            <div className="mt-8 md:mt-0">
               <h4 className="font-semibold text-foreground mb-4">Resources</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
@@ -466,7 +509,7 @@ export default function HomePage() {
               </ul>
             </div>
 
-            <div>
+            <div className="mt-8 md:mt-0">
               <h4 className="font-semibold text-foreground mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>

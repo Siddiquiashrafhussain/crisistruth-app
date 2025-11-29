@@ -40,7 +40,6 @@ export default function SignupPage() {
     setIsLoading(true)
     setError("")
 
-    // Basic validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match")
       setIsLoading(false)
@@ -53,12 +52,10 @@ export default function SignupPage() {
       return
     }
 
-    // Mock signup - in real app, this would call an API
     setTimeout(() => {
       setSuccess(true)
       setIsLoading(false)
 
-      // Redirect after success
       setTimeout(() => {
         window.location.href = "/login"
       }, 2000)
@@ -67,7 +64,7 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-6">
             <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
@@ -84,15 +81,15 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4 p-4">
-            <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8 w-auto" />
           </div>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Create Account</h2>
-          <p className="text-muted-foreground">Join the fight against misinformation</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Create Account</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">Join the fight against misinformation</p>
         </div>
 
         {/* Signup Form */}
@@ -103,7 +100,7 @@ export default function SignupPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSignup} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
                   <Input
@@ -241,19 +238,20 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-start space-x-3">
                 <Checkbox
                   id="terms"
                   checked={acceptTerms}
                   onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                  className="mt-1"
                 />
-                <Label htmlFor="terms" className="text-sm">
+                <Label htmlFor="terms" className="text-sm text-muted-foreground">
                   I agree to the{" "}
-                  <Link href="/terms" className="text-primary hover:underline">
+                  <Link href="#" className="text-primary hover:underline">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link href="/privacy" className="text-primary hover:underline">
+                  <Link href="#" className="text-primary hover:underline">
                     Privacy Policy
                   </Link>
                 </Label>

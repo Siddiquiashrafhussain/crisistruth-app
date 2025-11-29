@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,8 +21,10 @@ import {
   Edit,
   Trash2,
   Plus,
+  Menu,
 } from "lucide-react"
 import Image from "next/image"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 // Mock admin data
 const adminStats = {
@@ -159,15 +164,15 @@ function getAlertIcon(type: string) {
 }
 
 export default function AdminPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
   return (
     <div className="min-h-screen bg-background">
       {/* Admin Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div>
-              <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
-            </div>
+            <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8 w-auto" />
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <a href="/" className="text-foreground hover:text-primary transition-colors">
@@ -181,31 +186,68 @@ export default function AdminPage() {
             </a>
           </nav>
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-            <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-              <Plus className="h-4 w-4 mr-2" />
-              New Crisis
-            </Button>
+            <div className="hidden md:flex items-center gap-3">
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+              <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                <Plus className="h-4 w-4 mr-2" />
+                New Crisis
+              </Button>
+            </div>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="outline" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full max-w-sm">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-center justify-between py-4 border-b">
+                     <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8 w-auto" />
+                  </div>
+                  <nav className="flex flex-col gap-6 py-6">
+                    <a href="/" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                      Public Site
+                    </a>
+                    <a href="/dashboard" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-foreground hover:text-primary transition-colors">
+                      Dashboard
+                    </a>
+                    <a href="/admin" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-primary">
+                      Admin
+                    </a>
+                  </nav>
+                  <div className="mt-auto border-t pt-6 flex flex-col gap-4">
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
+                    </Button>
+                    <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Crisis
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Admin Dashboard Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2 font-[family-name:var(--font-playfair)]">
+          <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-2 font-[family-name:var(--font-playfair)]">
             Admin Console
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-base sm:text-lg">
             Manage fact-checkers, moderate content, and monitor system performance
           </p>
         </div>
 
         {/* System Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -263,13 +305,13 @@ export default function AdminPage() {
           <CardContent>
             <div className="space-y-3">
               {systemAlerts.map((alert) => (
-                <div key={alert.id} className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                <div key={alert.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-lg border border-border">
                   {getAlertIcon(alert.type)}
                   <div className="flex-1">
                     <p className="text-sm font-medium text-foreground">{alert.message}</p>
                     <p className="text-xs text-muted-foreground">{alert.timestamp}</p>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto mt-2 sm:mt-0">
                     Resolve
                   </Button>
                 </div>
@@ -280,12 +322,12 @@ export default function AdminPage() {
 
         {/* Admin Tabs */}
         <Tabs defaultValue="reviews" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="w-full overflow-x-auto whitespace-nowrap py-2 px-1 grid grid-flow-col auto-cols-max gap-4 sm:grid-cols-5">
             <TabsTrigger value="reviews">Pending Reviews</TabsTrigger>
             <TabsTrigger value="fact-checkers">Fact-Checkers</TabsTrigger>
-            <TabsTrigger value="content">Content Management</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="settings">System Settings</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="reviews" className="mt-6">
@@ -299,26 +341,26 @@ export default function AdminPage() {
                   {pendingReviews.map((review) => (
                     <div
                       key={review.id}
-                      className="flex items-start justify-between p-4 border border-border rounded-lg"
+                      className="flex flex-col sm:flex-row items-start justify-between p-4 border border-border rounded-lg gap-4"
                     >
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
                           <Badge className={getPriorityColor(review.priority)}>{review.priority.toUpperCase()}</Badge>
                           <Badge variant="outline">{review.category}</Badge>
                           <Badge className={getStatusColor(review.status)}>
                             {review.status.replace("-", " ").toUpperCase()}
                           </Badge>
                         </div>
-                        <h4 className="font-semibold text-foreground mb-2">{review.claim}</h4>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <h4 className="font-semibold text-foreground mb-2 text-base">{review.claim}</h4>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                           <span>Submitted by: {review.submittedBy}</span>
                           <span>{review.submittedAt}</span>
                         </div>
                       </div>
-                      <div className="flex gap-2 ml-4">
+                      <div className="flex gap-2 ml-auto sm:ml-4 flex-shrink-0">
                         <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4 mr-2" />
-                          Review
+                          <Eye className="h-4 w-4 md:mr-2" />
+                          <span className="hidden md:inline">Review</span>
                         </Button>
                         <Button size="sm" className="bg-primary hover:bg-primary/90">
                           Assign
@@ -334,12 +376,12 @@ export default function AdminPage() {
           <TabsContent value="fact-checkers" className="mt-6">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
                     <CardTitle>Fact-Checker Management</CardTitle>
                     <CardDescription>Manage expert fact-checkers and their performance metrics</CardDescription>
                   </div>
-                  <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                  <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground w-full sm:w-auto">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Fact-Checker
                   </Button>
@@ -350,15 +392,15 @@ export default function AdminPage() {
                   {factCheckers.map((checker) => (
                     <div
                       key={checker.id}
-                      className="flex items-center justify-between p-4 border border-border rounded-lg"
+                      className="flex flex-col md:flex-row items-start justify-between p-4 border border-border rounded-lg gap-4"
                     >
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
                           <h4 className="font-semibold text-foreground">{checker.name}</h4>
                           <Badge className={getStatusColor(checker.status)}>{checker.status.toUpperCase()}</Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">{checker.email}</p>
-                        <div className="flex items-center gap-6 text-sm">
+                        <p className="text-sm text-muted-foreground mb-3">{checker.email}</p>
+                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
                           <span className="text-muted-foreground">
                             <strong>Specialization:</strong> {checker.specialization}
                           </span>
@@ -368,23 +410,20 @@ export default function AdminPage() {
                           <span className="text-muted-foreground">
                             <strong>Accuracy:</strong> {checker.accuracyRate}%
                           </span>
-                          <span className="text-muted-foreground">
-                            <strong>Joined:</strong> {checker.joinedDate}
-                          </span>
                         </div>
                       </div>
-                      <div className="flex gap-2 ml-4">
+                      <div className="flex gap-2 ml-auto md:ml-4 flex-shrink-0 self-start md:self-center">
                         <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Profile
+                          <Eye className="h-4 w-4 md:mr-2" />
+                           <span className="hidden md:inline">View</span>
                         </Button>
                         <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
+                          <Edit className="h-4 w-4 md:mr-2" />
+                           <span className="hidden md:inline">Edit</span>
                         </Button>
                         <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 bg-transparent">
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Remove
+                          <Trash2 className="h-4 w-4 md:mr-2" />
+                           <span className="hidden md:inline">Remove</span>
                         </Button>
                       </div>
                     </div>
@@ -402,11 +441,11 @@ export default function AdminPage() {
                   <CardDescription>Manage flagged content and moderation queue</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-3 gap-4 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <Card>
                       <CardContent className="pt-6 text-center">
                         <AlertTriangle className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-red-600 mb-1">23</div>
+                        <div className="text-2xl font-bold text-red-600 mb-1">{adminStats.flaggedContent}</div>
                         <div className="text-sm text-muted-foreground">Flagged Content</div>
                       </CardContent>
                     </Card>
@@ -420,17 +459,17 @@ export default function AdminPage() {
                     <Card>
                       <CardContent className="pt-6 text-center">
                         <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-green-600 mb-1">156</div>
+                        <div className="text-2xl font-bold text-green-600 mb-1">{adminStats.resolvedIssues}</div>
                         <div className="text-sm text-muted-foreground">Resolved Today</div>
                       </CardContent>
                     </Card>
                   </div>
-                  <div className="flex gap-4">
-                    <Button className="bg-primary hover:bg-primary/90">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                       <FileText className="h-4 w-4 mr-2" />
                       Review Flagged Content
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" className="w-full sm:w-auto">
                       <Settings className="h-4 w-4 mr-2" />
                       Moderation Settings
                     </Button>
@@ -444,16 +483,16 @@ export default function AdminPage() {
                   <CardDescription>Create and manage crisis situations and associated claims</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex gap-4">
-                    <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground w-full sm:w-auto">
                       <Plus className="h-4 w-4 mr-2" />
                       Create New Crisis
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" className="w-full sm:w-auto">
                       <Globe className="h-4 w-4 mr-2" />
                       Manage Active Crises
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" className="w-full sm:w-auto">
                       <BarChart3 className="h-4 w-4 mr-2" />
                       Crisis Analytics
                     </Button>
@@ -471,7 +510,7 @@ export default function AdminPage() {
                   <CardDescription>System performance and usage statistics</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Card>
                       <CardContent className="pt-6 text-center">
                         <div className="text-2xl font-bold text-primary mb-1">
@@ -499,12 +538,12 @@ export default function AdminPage() {
                       </CardContent>
                     </Card>
                   </div>
-                  <div className="flex gap-4">
-                    <Button className="bg-primary hover:bg-primary/90">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                       <BarChart3 className="h-4 w-4 mr-2" />
                       View Detailed Analytics
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" className="w-full sm:w-auto">
                       <FileText className="h-4 w-4 mr-2" />
                       Generate Report
                     </Button>
@@ -540,43 +579,43 @@ export default function AdminPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border border-border rounded-lg">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-border rounded-lg gap-4">
                       <div>
                         <h4 className="font-semibold text-foreground">AI Verification Threshold</h4>
                         <p className="text-sm text-muted-foreground">
                           Minimum confidence score required for automatic verification
                         </p>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         Configure
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-border rounded-lg">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-border rounded-lg gap-4">
                       <div>
                         <h4 className="font-semibold text-foreground">Source Credibility Weights</h4>
                         <p className="text-sm text-muted-foreground">
                           Adjust credibility scoring for different source types
                         </p>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         Configure
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-border rounded-lg">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-border rounded-lg gap-4">
                       <div>
                         <h4 className="font-semibold text-foreground">Notification Settings</h4>
                         <p className="text-sm text-muted-foreground">Configure system alerts and notifications</p>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         Configure
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-border rounded-lg">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-border rounded-lg gap-4">
                       <div>
                         <h4 className="font-semibold text-foreground">API Rate Limits</h4>
                         <p className="text-sm text-muted-foreground">Manage API usage limits and quotas</p>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         Configure
                       </Button>
                     </div>
@@ -590,16 +629,16 @@ export default function AdminPage() {
                   <CardDescription>Manage security policies and access controls</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex gap-4">
-                    <Button className="bg-primary hover:bg-primary/90">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                       <Shield className="h-4 w-4 mr-2" />
                       Security Dashboard
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" className="w-full sm:w-auto">
                       <Users className="h-4 w-4 mr-2" />
                       User Permissions
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" className="w-full sm:w-auto">
                       <Settings className="h-4 w-4 mr-2" />
                       Access Logs
                     </Button>
