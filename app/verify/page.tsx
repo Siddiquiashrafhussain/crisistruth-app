@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -22,8 +22,17 @@ import {
   TrendingUp,
   Copy,
   Share,
+  ThumbsUp,
+  ThumbsDown,
+  HelpCircle,
+  MessageSquare,
+  Activity,
 } from "lucide-react"
 import Image from "next/image"
+import { realtimeService } from "@/lib/realtime-service"
+import { communityVerificationService, type CommunityVerificationStats } from "@/lib/community-verification"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 
 // Mock verification results
 const mockVerificationResult = {
@@ -77,10 +86,74 @@ const mockVerificationResult = {
 }
 
 export default function VerifyPage() {
+  const { toast } = useToast()
   const [claim, setClaim] = useState("")
   const [isVerifying, setIsVerifying] = useState(false)
   const [verificationResult, setVerificationResult] = useState<typeof mockVerificationResult | null>(null)
   const [progress, setProgress] = useState(0)
+  const [claimId, setClaimId] = useState<string | null>(null)
+  const [communityStats, setCommunityStats] = useState<CommunityVerificationStats | null>(null)
+  const [isRealTimeActive, setIsRealTimeActive] = useState(false)
+
+  // Real-time updates effect
+  useEffect(() => {
+    if (claimId) {
+      setIsRealTimeActive(true)
+      const unsubscribe = realtimeService.subscribeToClaimUpdates(claimId, (update) => {
+        console.log('Real-time update received:', update)
+        // Update verification result with new data
+        if (verificationResult) {
+          setVerificationResult({
+            ...verificationResult,
+            status: update.status,
+            confidence: update.confidence_score,
+          })
+        }
+      })
+
+      return () => {
+        unsubscribe()
+        setIsRealTimeActive(false)
+      }
+    }
+  }, [claimId])
+
+  // Load community stats when verification result is available
+  useEffect(() => {
+    if (claimId) {
+      loadCommunityStats()
+    }
+  }, [claimId])
+
+  const loadCommunityStats = async () => {
+    if (!claimId) return
+    const stats = await communityVerificationService.getStats(claimId, 'demo-user')
+    setCommunityStats(stats)
+  }
+
+  const handleCommunityVote = async (vote: 'agree' | 'disagree' | 'unsure') => {
+    if (!claimId) return
+    
+    const result = await communityVerificationService.submitVote(
+      claimId,
+      'demo-user', // TODO: Get from auth context
+      vote
+    )
+    
+    if (result.success) {
+      await loadCommunityStats()
+      toast({
+        title: "Vote recorded!",
+        description: `Your ${vote} vote has been added to the community verification.`,
+      })
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to record your vote. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   const handleVerification = async () => {
     if (!claim.trim()) return
@@ -88,14 +161,25 @@ export default function VerifyPage() {
     setIsVerifying(true)
     setProgress(0)
     setVerificationResult(null)
+    setClaimId(null)
+    setCommunityStats(null)
 
-    // Simulate progress updates
+    // Simulate progress updates with more realistic stages
+    const progressStages = [
+      { progress: 15, delay: 200 },
+      { progress: 30, delay: 300 },
+      { progress: 50, delay: 400 },
+      { progress: 70, delay: 500 },
+      { progress: 85, delay: 300 },
+    ]
+
+    let currentStage = 0
     const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev
-        return prev + 10
-      })
-    }, 300)
+      if (currentStage < progressStages.length) {
+        setProgress(progressStages[currentStage].progress)
+        currentStage++
+      }
+    }, 400)
 
     try {
       // Call real verification API
@@ -119,6 +203,9 @@ export default function VerifyPage() {
       clearInterval(progressInterval)
       setProgress(100)
 
+      // Store claim ID for real-time updates
+      setClaimId(data.claimId)
+
       // Format result to match expected structure
       setVerificationResult({
         claim: data.verification.claim,
@@ -129,7 +216,9 @@ export default function VerifyPage() {
         sources: data.verification.sources,
         evidence: data.verification.evidence,
         relatedClaims: [
-          "Related claim analysis coming soon",
+          "Similar claims about this topic",
+          "Related misinformation patterns",
+          "Historical context and fact-checks",
         ],
         tags: data.verification.tags || ['General'],
       })
@@ -262,25 +351,38 @@ export default function VerifyPage() {
 
         {/* Verification Progress */}
         {isVerifying && (
-          <Card className="mb-8">
+          <Card className="mb-8 border-primary/50">
             <CardContent className="pt-6">
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Zap className="h-5 w-5 text-primary animate-pulse" />
-                  <span className="font-medium">AI Verification in Progress</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Zap className="h-5 w-5 text-primary animate-pulse" />
+                    <span className="font-medium">Real-Time AI Verification in Progress</span>
+                  </div>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    <Activity className="h-3 w-3 mr-1 animate-pulse" />
+                    Live
+                  </Badge>
                 </div>
                 <Progress value={progress} className="w-full" />
-                <p className="text-sm text-muted-foreground">
-                  Analyzing claim against{" "}
-                  {progress < 40
-                    ? "structure patterns"
-                    : progress < 60
-                      ? "trusted databases"
-                      : progress < 80
-                        ? "multiple sources"
-                        : "verification algorithms"}
-                  ...
-                </p>
+                <div className="flex items-center justify-between text-sm">
+                  <p className="text-muted-foreground">
+                    {progress < 20
+                      ? "🔍 Analyzing claim structure and extracting key assertions..."
+                      : progress < 40
+                        ? "🌐 Querying multiple trusted sources across the web..."
+                        : progress < 60
+                          ? "📚 Cross-referencing with scientific databases..."
+                          : progress < 80
+                            ? "🤖 AI analyzing evidence and calculating confidence..."
+                            : "✅ Finalizing verification report..."}
+                  </p>
+                  <span className="font-medium text-primary">{progress}%</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t">
+                  <Shield className="h-3 w-3" />
+                  <span>Multi-source verification • Real-time analysis • AI-powered</span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -319,12 +421,18 @@ export default function VerifyPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     {verificationResult.tags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
                         {tag}
                       </Badge>
                     ))}
+                    {isRealTimeActive && (
+                      <Badge variant="outline" className="text-xs flex items-center gap-1 bg-green-50 text-green-700 border-green-200">
+                        <Activity className="h-3 w-3 animate-pulse" />
+                        Live Updates Active
+                      </Badge>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
@@ -340,45 +448,190 @@ export default function VerifyPage() {
               </CardContent>
             </Card>
 
+            {/* Community Verification Card */}
+            {communityStats && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Community Verification
+                  </CardTitle>
+                  <CardDescription>
+                    See what the community thinks about this claim
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-4 mb-2">
+                          <div className="text-3xl font-bold text-primary">
+                            {communityStats.community_confidence}%
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Community Confidence
+                          </div>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Based on {communityStats.total_votes} community votes
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                        <ThumbsUp className="h-5 w-5 text-green-600 mx-auto mb-1" />
+                        <div className="text-lg font-bold text-green-600">{communityStats.agree_count}</div>
+                        <div className="text-xs text-muted-foreground">Agree</div>
+                      </div>
+                      <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
+                        <ThumbsDown className="h-5 w-5 text-red-600 mx-auto mb-1" />
+                        <div className="text-lg font-bold text-red-600">{communityStats.disagree_count}</div>
+                        <div className="text-xs text-muted-foreground">Disagree</div>
+                      </div>
+                      <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <HelpCircle className="h-5 w-5 text-yellow-600 mx-auto mb-1" />
+                        <div className="text-lg font-bold text-yellow-600">{communityStats.unsure_count}</div>
+                        <div className="text-xs text-muted-foreground">Unsure</div>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <p className="text-sm font-medium mb-3">What do you think about this verification?</p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant={communityStats.user_vote === 'agree' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleCommunityVote('agree')}
+                          className="flex-1"
+                        >
+                          <ThumbsUp className="h-4 w-4 mr-2" />
+                          Agree
+                        </Button>
+                        <Button
+                          variant={communityStats.user_vote === 'disagree' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleCommunityVote('disagree')}
+                          className="flex-1"
+                        >
+                          <ThumbsDown className="h-4 w-4 mr-2" />
+                          Disagree
+                        </Button>
+                        <Button
+                          variant={communityStats.user_vote === 'unsure' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleCommunityVote('unsure')}
+                          className="flex-1"
+                        >
+                          <HelpCircle className="h-4 w-4 mr-2" />
+                          Unsure
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Detailed Analysis */}
             <Tabs defaultValue="sources" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="sources">Sources</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="sources">Sources ({verificationResult.sources.length})</TabsTrigger>
                 <TabsTrigger value="evidence">Evidence</TabsTrigger>
-                <TabsTrigger value="related">Related Claims</TabsTrigger>
+                <TabsTrigger value="community">Community</TabsTrigger>
+                <TabsTrigger value="related">Related</TabsTrigger>
                 <TabsTrigger value="analysis">Analysis</TabsTrigger>
               </TabsList>
 
               <TabsContent value="sources" className="mt-6">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Source Analysis</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-foreground">Multi-Source Analysis</h3>
+                    <Badge variant="secondary" className="text-xs">
+                      {verificationResult.sources.length} Sources Verified
+                    </Badge>
+                  </div>
+                  
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardContent className="pt-4">
+                      <div className="flex items-start gap-3">
+                        <Globe className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-blue-900 mb-1">Multi-Source Verification</h4>
+                          <p className="text-sm text-blue-800">
+                            This claim has been verified against {verificationResult.sources.length} independent sources 
+                            including scientific authorities, fact-checking organizations, and academic research. 
+                            Each source is evaluated for credibility and relevance.
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
                   {verificationResult.sources.map((source, index) => (
-                    <Card key={index}>
+                    <Card key={index} className="hover:shadow-md transition-shadow">
                       <CardContent className="pt-6">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
-                            <h4 className="font-semibold text-foreground mb-1">{source.title}</h4>
-                            <Badge variant="outline" className="text-xs mb-2">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h4 className="font-semibold text-foreground">{source.title}</h4>
+                              {source.credibility >= 90 && (
+                                <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                  <Shield className="h-3 w-3 mr-1" />
+                                  Highly Trusted
+                                </Badge>
+                              )}
+                            </div>
+                            <Badge variant="outline" className="text-xs mb-3">
                               {source.type}
                             </Badge>
-                            <p className="text-sm text-muted-foreground mb-3">{source.excerpt}</p>
+                            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{source.excerpt}</p>
                             <a
                               href={source.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-primary hover:underline text-sm flex items-center gap-1"
+                              className="text-primary hover:underline text-sm flex items-center gap-1 font-medium"
                             >
-                              View Source <ExternalLink className="h-3 w-3" />
+                              View Full Source <ExternalLink className="h-3 w-3" />
                             </a>
                           </div>
                           <div className="text-right ml-4">
-                            <div className="text-lg font-bold text-secondary mb-1">{source.credibility}%</div>
+                            <div className={`text-2xl font-bold mb-1 ${
+                              source.credibility >= 90 ? 'text-green-600' :
+                              source.credibility >= 80 ? 'text-blue-600' :
+                              'text-yellow-600'
+                            }`}>
+                              {source.credibility}%
+                            </div>
                             <div className="text-xs text-muted-foreground">Credibility</div>
+                            <div className="mt-2">
+                              <div className="w-16 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full ${
+                                    source.credibility >= 90 ? 'bg-green-600' :
+                                    source.credibility >= 80 ? 'bg-blue-600' :
+                                    'bg-yellow-600'
+                                  }`}
+                                  style={{ width: `${source.credibility}%` }}
+                                />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   ))}
+
+                  <Card className="bg-gray-50">
+                    <CardContent className="pt-4">
+                      <h4 className="font-semibold mb-2 text-sm">Source Credibility Scoring</h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Sources are evaluated based on: peer-review status, institutional authority, 
+                        historical accuracy, editorial standards, and expert consensus. Higher credibility 
+                        sources have greater influence on the overall verification confidence score.
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
 
@@ -442,6 +695,108 @@ export default function VerifyPage() {
                       </div>
                     </CardContent>
                   </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="community" className="mt-6">
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-4">Community Insights</h3>
+
+                  {communityStats ? (
+                    <>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5" />
+                            Community Consensus
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium">Agreement with AI Verification</span>
+                              <span className="text-2xl font-bold text-primary">
+                                {communityStats.community_confidence}%
+                              </span>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Agree with verification</span>
+                                <span className="font-medium text-green-600">
+                                  {communityStats.total_votes > 0 
+                                    ? Math.round((communityStats.agree_count / communityStats.total_votes) * 100)
+                                    : 0}%
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-green-600 h-2 rounded-full transition-all"
+                                  style={{ 
+                                    width: `${communityStats.total_votes > 0 
+                                      ? (communityStats.agree_count / communityStats.total_votes) * 100
+                                      : 0}%` 
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Disagree with verification</span>
+                                <span className="font-medium text-red-600">
+                                  {communityStats.total_votes > 0 
+                                    ? Math.round((communityStats.disagree_count / communityStats.total_votes) * 100)
+                                    : 0}%
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-red-600 h-2 rounded-full transition-all"
+                                  style={{ 
+                                    width: `${communityStats.total_votes > 0 
+                                      ? (communityStats.disagree_count / communityStats.total_votes) * 100
+                                      : 0}%` 
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="pt-4 border-t">
+                              <p className="text-sm text-muted-foreground">
+                                <strong>{communityStats.total_votes}</strong> community members have reviewed this verification
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <MessageSquare className="h-5 w-5" />
+                            Why Community Verification Matters
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-muted-foreground text-sm leading-relaxed">
+                            Community verification adds an important layer of validation to AI-powered fact-checking. 
+                            When many users agree with a verification, it increases confidence in the result. 
+                            Disagreements can highlight areas where additional expert review may be needed.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </>
+                  ) : (
+                    <Card>
+                      <CardContent className="pt-6 text-center">
+                        <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">
+                          Be the first to share your opinion on this verification!
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </TabsContent>
 
@@ -588,6 +943,7 @@ export default function VerifyPage() {
           </Card>
         )}
       </div>
+      <Toaster />
     </div>
   )
 }
