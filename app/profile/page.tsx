@@ -1,4 +1,4 @@
- "use client"
+"use client"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -467,7 +467,7 @@ export default function ProfilePage() {
                       </div>
                       <Button variant="outline" size="sm">
                         Change
-                      </Button
+                      </Button>
                     </div>
                     <div className="flex items-center justify-between p-4 border border-border rounded-lg">
                       <div>
