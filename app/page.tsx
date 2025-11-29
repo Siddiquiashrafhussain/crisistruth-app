@@ -17,7 +17,7 @@ export default function HomePage() {
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/crisistruth-logo.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
+            <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <a href="#features" className="text-foreground hover:text-primary transition-colors font-medium">
@@ -403,7 +403,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-6">
-                <Image src="/crisistruth-logo.png" alt="CrisisTruth Logo" width={100} height={24} className="h-6" />
+                <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={100} height={24} className="h-6" />
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed mb-6">
                 AI-powered fact verification for a more informed world.

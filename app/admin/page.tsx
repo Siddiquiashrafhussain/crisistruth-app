@@ -166,7 +166,7 @@ export default function AdminPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div>
-              <Image src="/crisistruth-logo.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
+              <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6">

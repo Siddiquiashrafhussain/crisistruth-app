@@ -89,7 +89,7 @@ export default function SignupPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4 p-4">
-            <Image src="/crisistruth-logo.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
+            <Image src="/Gemini_Generate.png" alt="CrisisTruth Logo" width={120} height={32} className="h-8" />
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-2">Create Account</h2>
           <p className="text-muted-foreground">Join the fight against misinformation</p>
