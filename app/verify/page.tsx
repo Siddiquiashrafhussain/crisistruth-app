@@ -19,17 +19,6 @@ import {
   Globe,
   BookOpen,
   Users,
-  TrendingUp,
-  Copy,
-  Share,
-  Menu,
-  ThumbsUp,
-  ThumbsDown,
-  HelpCircle,
-  MessageSquare,
-  Activity,
-} from "lucide-react"
-import Image from "next/image"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { realtimeService } from "@/lib/realtime-service"
 import { communityVerificationService, type CommunityVerificationStats } from "@/lib/community-verification"
