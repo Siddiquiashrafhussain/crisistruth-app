@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 // Mock data for crisis cards
 const crisisData = [
@@ -286,12 +287,15 @@ export default function DashboardPage() {
 
         {/* Crisis Cards Tabs */}
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="w-full overflow-x-auto whitespace-nowrap py-2 px-1 grid grid-flow-col auto-cols-max gap-4 sm:grid-cols-4">
-            <TabsTrigger value="all">All Crises</TabsTrigger>
-            <TabsTrigger value="verified">Verified</TabsTrigger>
-            <TabsTrigger value="disputed">Disputed</TabsTrigger>
-            <TabsTrigger value="unverified">Pending</TabsTrigger>
-          </TabsList>
+            <ScrollArea className="w-full whitespace-nowrap">
+                <TabsList className="inline-flex h-auto justify-start p-1">
+                    <TabsTrigger value="all">All Crises</TabsTrigger>
+                    <TabsTrigger value="verified">Verified</TabsTrigger>
+                    <TabsTrigger value="disputed">Disputed</TabsTrigger>
+                    <TabsTrigger value="unverified">Pending</TabsTrigger>
+                </TabsList>
+                <ScrollBar orientation="horizontal" />
+            </ScrollArea>
 
           <TabsContent value="all" className="mt-6">
             <div className="grid gap-6">
